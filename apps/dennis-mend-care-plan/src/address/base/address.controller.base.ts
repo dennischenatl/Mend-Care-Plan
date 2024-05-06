@@ -18,130 +18,129 @@ import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
 import * as nestAccessControl from "nest-access-control";
 import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
-import { UserService } from "../user.service";
+import { AddressService } from "../address.service";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { UserCreateInput } from "./UserCreateInput";
-import { User } from "./User";
-import { UserFindManyArgs } from "./UserFindManyArgs";
-import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
-import { UserUpdateInput } from "./UserUpdateInput";
+import { AddressCreateInput } from "./AddressCreateInput";
+import { Address } from "./Address";
+import { AddressFindManyArgs } from "./AddressFindManyArgs";
+import { AddressWhereUniqueInput } from "./AddressWhereUniqueInput";
+import { AddressUpdateInput } from "./AddressUpdateInput";
 
 @swagger.ApiBearerAuth()
 @common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
-export class UserControllerBase {
+export class AddressControllerBase {
   constructor(
-    protected readonly service: UserService,
+    protected readonly service: AddressService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
-  @swagger.ApiCreatedResponse({ type: User })
+  @swagger.ApiCreatedResponse({ type: Address })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "create",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async createUser(@common.Body() data: UserCreateInput): Promise<User> {
-    return await this.service.createUser({
+  async createAddress(
+    @common.Body() data: AddressCreateInput
+  ): Promise<Address> {
+    return await this.service.createAddress({
       data: {
         ...data,
 
-        addresses: data.addresses
+        userReference: data.userReference
           ? {
-              connect: data.addresses,
+              connect: data.userReference,
             }
           : undefined,
       },
       select: {
-        addresses: {
+        city: true,
+        createdAt: true,
+        id: true,
+        state: true,
+        updatedAt: true,
+
+        userReference: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
+        zipCode: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
-  @swagger.ApiOkResponse({ type: [User] })
-  @ApiNestedQuery(UserFindManyArgs)
+  @swagger.ApiOkResponse({ type: [Address] })
+  @ApiNestedQuery(AddressFindManyArgs)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "read",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async users(@common.Req() request: Request): Promise<User[]> {
-    const args = plainToClass(UserFindManyArgs, request.query);
-    return this.service.users({
+  async addresses(@common.Req() request: Request): Promise<Address[]> {
+    const args = plainToClass(AddressFindManyArgs, request.query);
+    return this.service.addresses({
       ...args,
       select: {
-        addresses: {
+        city: true,
+        createdAt: true,
+        id: true,
+        state: true,
+        updatedAt: true,
+
+        userReference: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
+        zipCode: true,
       },
     });
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "read",
     possession: "own",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async user(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
-    const result = await this.service.user({
+  async address(
+    @common.Param() params: AddressWhereUniqueInput
+  ): Promise<Address | null> {
+    const result = await this.service.address({
       where: params,
       select: {
-        addresses: {
+        city: true,
+        createdAt: true,
+        id: true,
+        state: true,
+        updatedAt: true,
+
+        userReference: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
-        updatedAt: true,
-        username: true,
+        zipCode: true,
       },
     });
     if (result === null) {
@@ -154,47 +153,46 @@ export class UserControllerBase {
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "update",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async updateUser(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() data: UserUpdateInput
-  ): Promise<User | null> {
+  async updateAddress(
+    @common.Param() params: AddressWhereUniqueInput,
+    @common.Body() data: AddressUpdateInput
+  ): Promise<Address | null> {
     try {
-      return await this.service.updateUser({
+      return await this.service.updateAddress({
         where: params,
         data: {
           ...data,
 
-          addresses: data.addresses
+          userReference: data.userReference
             ? {
-                connect: data.addresses,
+                connect: data.userReference,
               }
             : undefined,
         },
         select: {
-          addresses: {
+          city: true,
+          createdAt: true,
+          id: true,
+          state: true,
+          updatedAt: true,
+
+          userReference: {
             select: {
               id: true,
             },
           },
 
-          createdAt: true,
-          email: true,
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
-          updatedAt: true,
-          username: true,
+          zipCode: true,
         },
       });
     } catch (error) {
@@ -208,37 +206,36 @@ export class UserControllerBase {
   }
 
   @common.Delete("/:id")
-  @swagger.ApiOkResponse({ type: User })
+  @swagger.ApiOkResponse({ type: Address })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "delete",
     possession: "any",
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
-  async deleteUser(
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<User | null> {
+  async deleteAddress(
+    @common.Param() params: AddressWhereUniqueInput
+  ): Promise<Address | null> {
     try {
-      return await this.service.deleteUser({
+      return await this.service.deleteAddress({
         where: params,
         select: {
-          addresses: {
+          city: true,
+          createdAt: true,
+          id: true,
+          state: true,
+          updatedAt: true,
+
+          userReference: {
             select: {
               id: true,
             },
           },
 
-          createdAt: true,
-          email: true,
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
-          updatedAt: true,
-          username: true,
+          zipCode: true,
         },
       });
     } catch (error) {

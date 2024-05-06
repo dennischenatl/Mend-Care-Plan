@@ -11,23 +11,22 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { Address } from "../../address/base/Address";
-import { ValidateNested, IsOptional, IsDate, IsString } from "class-validator";
+import { IsString, IsOptional, IsDate, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { IsJSONValue } from "../../validators";
-import { GraphQLJSON } from "graphql-type-json";
-import { JsonValue } from "type-fest";
+import { User } from "../../user/base/User";
 
 @ObjectType()
-class User {
+class Address {
   @ApiProperty({
     required: false,
-    type: () => Address,
+    type: String,
   })
-  @ValidateNested()
-  @Type(() => Address)
+  @IsString()
   @IsOptional()
-  addresses?: Address | null;
+  @Field(() => String, {
+    nullable: true,
+  })
+  city!: string | null;
 
   @ApiProperty({
     required: true,
@@ -36,28 +35,6 @@ class User {
   @Type(() => Date)
   @Field(() => Date)
   createdAt!: Date;
-
-  @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  email!: string | null;
-
-  @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  firstName!: string | null;
 
   @ApiProperty({
     required: true,
@@ -76,14 +53,7 @@ class User {
   @Field(() => String, {
     nullable: true,
   })
-  lastName!: string | null;
-
-  @ApiProperty({
-    required: true,
-  })
-  @IsJSONValue()
-  @Field(() => GraphQLJSON)
-  roles!: JsonValue;
+  state!: string | null;
 
   @ApiProperty({
     required: true,
@@ -94,12 +64,24 @@ class User {
   updatedAt!: Date;
 
   @ApiProperty({
-    required: true,
+    required: false,
+    type: () => User,
+  })
+  @ValidateNested()
+  @Type(() => User)
+  @IsOptional()
+  userReference?: User | null;
+
+  @ApiProperty({
+    required: false,
     type: String,
   })
   @IsString()
-  @Field(() => String)
-  username!: string;
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  zipCode!: string | null;
 }
 
-export { User as User };
+export { Address as Address };

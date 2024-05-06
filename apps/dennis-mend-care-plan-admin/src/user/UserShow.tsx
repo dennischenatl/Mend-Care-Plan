@@ -3,14 +3,23 @@ import {
   Show,
   SimpleShowLayout,
   ShowProps,
-  DateField,
+  ReferenceField,
   TextField,
+  DateField,
 } from "react-admin";
+import { ADDRESS_TITLE_FIELD } from "../address/AddressTitle";
 
 export const UserShow = (props: ShowProps): React.ReactElement => {
   return (
     <Show {...props}>
       <SimpleShowLayout>
+        <ReferenceField
+          label="Addresses"
+          source="address.id"
+          reference="Address"
+        >
+          <TextField source={ADDRESS_TITLE_FIELD} />
+        </ReferenceField>
         <DateField source="createdAt" label="Created At" />
         <TextField label="Email" source="email" />
         <TextField label="First Name" source="firstName" />

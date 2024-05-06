@@ -8,6 +8,7 @@ generator client {
 }
 
 model User {
+  addresses Address?
   createdAt DateTime @default(now())
   email     String?  @unique
   firstName String?
@@ -17,4 +18,15 @@ model User {
   roles     Json
   updatedAt DateTime @updatedAt
   username  String   @unique
+}
+
+model Address {
+  city            String?
+  createdAt       DateTime @default(now())
+  id              String   @id @default(cuid())
+  state           String?
+  updatedAt       DateTime @updatedAt
+  userReference   User?    @relation(fields: [userReferenceId], references: [id])
+  userReferenceId String?  @unique
+  zipCode         String?
 }

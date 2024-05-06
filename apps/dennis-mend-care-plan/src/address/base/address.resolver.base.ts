@@ -19,31 +19,31 @@ import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
 import * as common from "@nestjs/common";
 import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { User } from "./User";
-import { UserCountArgs } from "./UserCountArgs";
-import { UserFindManyArgs } from "./UserFindManyArgs";
-import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
-import { CreateUserArgs } from "./CreateUserArgs";
-import { UpdateUserArgs } from "./UpdateUserArgs";
-import { DeleteUserArgs } from "./DeleteUserArgs";
-import { Address } from "../../address/base/Address";
-import { UserService } from "../user.service";
+import { Address } from "./Address";
+import { AddressCountArgs } from "./AddressCountArgs";
+import { AddressFindManyArgs } from "./AddressFindManyArgs";
+import { AddressFindUniqueArgs } from "./AddressFindUniqueArgs";
+import { CreateAddressArgs } from "./CreateAddressArgs";
+import { UpdateAddressArgs } from "./UpdateAddressArgs";
+import { DeleteAddressArgs } from "./DeleteAddressArgs";
+import { User } from "../../user/base/User";
+import { AddressService } from "../address.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
-@graphql.Resolver(() => User)
-export class UserResolverBase {
+@graphql.Resolver(() => Address)
+export class AddressResolverBase {
   constructor(
-    protected readonly service: UserService,
+    protected readonly service: AddressService,
     protected readonly rolesBuilder: nestAccessControl.RolesBuilder
   ) {}
 
   @graphql.Query(() => MetaQueryPayload)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "read",
     possession: "any",
   })
-  async _usersMeta(
-    @graphql.Args() args: UserCountArgs
+  async _addressesMeta(
+    @graphql.Args() args: AddressCountArgs
   ): Promise<MetaQueryPayload> {
     const result = await this.service.count(args);
     return {
@@ -52,25 +52,29 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => [User])
+  @graphql.Query(() => [Address])
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "read",
     possession: "any",
   })
-  async users(@graphql.Args() args: UserFindManyArgs): Promise<User[]> {
-    return this.service.users(args);
+  async addresses(
+    @graphql.Args() args: AddressFindManyArgs
+  ): Promise<Address[]> {
+    return this.service.addresses(args);
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.Query(() => User, { nullable: true })
+  @graphql.Query(() => Address, { nullable: true })
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "read",
     possession: "own",
   })
-  async user(@graphql.Args() args: UserFindUniqueArgs): Promise<User | null> {
-    const result = await this.service.user(args);
+  async address(
+    @graphql.Args() args: AddressFindUniqueArgs
+  ): Promise<Address | null> {
+    const result = await this.service.address(args);
     if (result === null) {
       return null;
     }
@@ -78,21 +82,23 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Address)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "create",
     possession: "any",
   })
-  async createUser(@graphql.Args() args: CreateUserArgs): Promise<User> {
-    return await this.service.createUser({
+  async createAddress(
+    @graphql.Args() args: CreateAddressArgs
+  ): Promise<Address> {
+    return await this.service.createAddress({
       ...args,
       data: {
         ...args.data,
 
-        addresses: args.data.addresses
+        userReference: args.data.userReference
           ? {
-              connect: args.data.addresses,
+              connect: args.data.userReference,
             }
           : undefined,
       },
@@ -100,22 +106,24 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclValidateRequestInterceptor)
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Address)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "update",
     possession: "any",
   })
-  async updateUser(@graphql.Args() args: UpdateUserArgs): Promise<User | null> {
+  async updateAddress(
+    @graphql.Args() args: UpdateAddressArgs
+  ): Promise<Address | null> {
     try {
-      return await this.service.updateUser({
+      return await this.service.updateAddress({
         ...args,
         data: {
           ...args.data,
 
-          addresses: args.data.addresses
+          userReference: args.data.userReference
             ? {
-                connect: args.data.addresses,
+                connect: args.data.userReference,
               }
             : undefined,
         },
@@ -130,15 +138,17 @@ export class UserResolverBase {
     }
   }
 
-  @graphql.Mutation(() => User)
+  @graphql.Mutation(() => Address)
   @nestAccessControl.UseRoles({
-    resource: "User",
+    resource: "Address",
     action: "delete",
     possession: "any",
   })
-  async deleteUser(@graphql.Args() args: DeleteUserArgs): Promise<User | null> {
+  async deleteAddress(
+    @graphql.Args() args: DeleteAddressArgs
+  ): Promise<Address | null> {
     try {
-      return await this.service.deleteUser(args);
+      return await this.service.deleteAddress(args);
     } catch (error) {
       if (isRecordNotFoundError(error)) {
         throw new GraphQLError(
@@ -150,17 +160,19 @@ export class UserResolverBase {
   }
 
   @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.ResolveField(() => Address, {
+  @graphql.ResolveField(() => User, {
     nullable: true,
-    name: "addresses",
+    name: "userReference",
   })
   @nestAccessControl.UseRoles({
-    resource: "Address",
+    resource: "User",
     action: "read",
     possession: "any",
   })
-  async getAddresses(@graphql.Parent() parent: User): Promise<Address | null> {
-    const result = await this.service.getAddresses(parent.id);
+  async getUserReference(
+    @graphql.Parent() parent: Address
+  ): Promise<User | null> {
+    const result = await this.service.getUserReference(parent.id);
 
     if (!result) {
       return null;

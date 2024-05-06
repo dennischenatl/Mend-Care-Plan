@@ -1,6 +1,8 @@
+import { Address } from "../address/Address";
 import { JsonValue } from "type-fest";
 
 export type User = {
+  addresses?: Address | null;
   createdAt: Date;
   email: string | null;
   firstName: string | null;
